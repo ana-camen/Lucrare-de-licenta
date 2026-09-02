@@ -47,7 +47,7 @@ async function testDatabase() {
   }
 }
 
-testDatabase(); */
+testDatabase(); 
 const sqlite3 = require('sqlite3').verbose();
 
 // Creează o bază de date temporară în memorie
@@ -65,3 +65,5 @@ db.close((err) => {
   }
   console.log('Conexiune închisă.');
 });
+*/
+

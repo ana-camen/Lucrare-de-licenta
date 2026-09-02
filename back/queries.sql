@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS consultatie (
   FOREIGN KEY (id_pacient) REFERENCES pacient(id_pacient)
 );
 
+
 -- TABEL FIȘĂ MEDICALĂ
 CREATE TABLE IF NOT EXISTS fisa_medicala (
   id_fisa INTEGER PRIMARY KEY AUTOINCREMENT,

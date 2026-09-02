@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const coadaController = require('../controllers/coadaController');
 
+// Status/poziție pacient în coadă (variantă cu parametri expliciți pentru compatibilitate frontend)
+router.get('/status_pacient/:id_pacient/:id_medic/:data', coadaController.statusPacientCoada);
+
 // Status coadă pentru un medic
 router.get('/:id/status', coadaController.statusCoadaMedic);
 

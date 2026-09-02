@@ -72,7 +72,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const id_medic = medicSelect.value;
     const data = dataInput.value;
     const ora = oraSelect.value;
-    const detalii = document.getElementById("detalii-stoma").value;
     if (!specializare || !id_medic || !data || !ora) {
       alert("Te rog completează toate câmpurile obligatorii.");
       return;
@@ -94,7 +93,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const res = await fetch("/api/programari", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_pacient: userId, id_medic, data, ora, detalii })
+        body: JSON.stringify({ id_pacient: userId, id_medic, data, ora })
       });
       if (res.ok) {
         alert("Programarea a fost adăugată cu succes!");

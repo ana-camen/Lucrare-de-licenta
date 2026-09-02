@@ -621,3 +621,205 @@ form#selectie-cabinet select {
   background: linear-gradient(90deg, #1a4d8f 0%, #3a8dde 100%);
   color: #fff;
 }
+
+/* Stiluri pentru coada reală fără nume */
+.coada-reala {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+}
+
+.coada-reala h4 {
+  color: #007bff;
+  margin-bottom: 15px;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.lista-pacienti {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.coada-goala {
+  color: #28a745;
+  font-style: italic;
+  text-align: center;
+  padding: 10px;
+}
+
+.pacient-coada {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  margin: 4px 0;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.pacient-coada.current-user {
+  background: #e3f2fd;
+  border-color: #2196f3;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+}
+
+.numar-ordine {
+  font-weight: bold;
+  color: #007bff;
+  margin-right: 12px;
+  min-width: 25px;
+  text-align: center;
+}
+
+.status-pacient {
+  flex: 1;
+  font-size: 0.9em;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.status-programare {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-asteptare {
+  background: #fff3e0;
+  color: #d35400;
+}
+
+.status-consultatie {
+  background: #e8f5e8;
+  color: #28a745;
+}
+
+.you-indicator {
+  color: #2196f3;
+  font-weight: bold;
+  font-size: 0.85em;
+  margin-left: 8px;
+}
+
+/* Stiluri pentru statusul personal */
+.status-personal {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #28a745;
+  margin-bottom: 20px;
+}
+
+.status-personal h3 {
+  color: #28a745;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+}
+
+.status-personal p {
+  margin: 8px 0;
+  font-size: 1em;
+}
+
+.status-personal strong {
+  color: #495057;
+}
+
+/* Stiluri pentru opțiunile cozii */
+.optiuni-coada {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+  margin-bottom: 20px;
+}
+
+.optiuni-coada h3 {
+  color: #007bff;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+}
+
+.programare-info {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+/* Butoane */
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+}
+
+.btn-success {
+  background: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #1e7e34;
+}
+
+.btn-info {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-info:hover {
+  background: #117a8b;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #545b62;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+}
+
+/* Mesaj de eroare */
+.error {
+  color: #dc3545;
+  background: #f8d7da;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #f5c6cb;
+  text-align: center;
+  margin: 20px 0;
+}
