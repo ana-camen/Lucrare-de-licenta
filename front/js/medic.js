@@ -228,71 +228,53 @@ document.addEventListener('DOMContentLoaded', async () => {
 // --- COADA DE AȘTEPTARE ---
 async function loadQueue() {
     const azi = new Date().toISOString().split('T')[0];
-    // --- NOU: Populează statisticile cozii ---
     try {
-        // Folosește -1 ca id_pacient pentru simulare generică
-        const statsRes = await fetch(`/api/coada_simulare/${medicId}/${azi}/-1`);
-        if (statsRes.ok) {
-            const stats = await statsRes.json();
-            document.getElementById('patients-in-queue').textContent = stats.persoane_in_fata ?? 0;
-            document.getElementById('avg-wait-time').textContent = stats.durata_medie ?? '-';
+        const res = await fetch(`/api/coada_efectiva/${medicId}/${azi}`);
+        if (res.ok) {
+            const data = await res.json();
+            const queue = data.coada || [];
+            const durataMedie = data.durata_medie_consultatie || 30;
+            console.log('[DEBUG COADA_EFECTIVA] Răspuns primit:', data);
+            document.getElementById('patients-in-queue').textContent = queue.length ?? 0;
+            document.getElementById('avg-wait-time').textContent = durataMedie ;
             document.getElementById('current-date').textContent = azi.split('-').reverse().join('.');
+            const queueCards = document.getElementById('queue-cards-container');
+            if (!queueCards) return;
+            let html = '';
+            if (!Array.isArray(queue) || queue.length === 0) {
+                html += '<div style="color:#888;">Nu există pacienți în coadă.</div>';
+            } else {
+                html += queue.map((p, idx) => {
+                    const nrOrdine = `<span style='font-weight:bold;color:#00b8b8;font-size:1.1em;margin-right:10px;'>${idx + 1}.</span>`;
+                    if (["in_asteptare", "asteptat", "in_consultatie"].includes(p.status_coada || p.status)) {
+                        return `<div class="queue-card queue-item ${p.status_coada}">
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <div>
+                                    ${nrOrdine}<strong>${p.nume_pacient}</strong>
+                                    <span style="color:#888;font-size:0.95em;"> (În așteptare)</span>
+                                </div>
+                                <button onclick="acceptPatient(${p.id_pacient}, '${p.nume_pacient}')" class="accept-btn" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                    <i class="fas fa-check"></i> Acceptă
+                                </button>
+                            </div>
+                        </div>`;
+                    } else {
+                        return `<div class="queue-card queue-item ${p.status_coada}">${nrOrdine}${p.nume_pacient} <span style="color:#888;font-size:0.95em;">(${p.status_coada})</span></div>`;
+                    }
+                }).join('');
+            }
+            queueCards.innerHTML = html;
         } else {
             document.getElementById('patients-in-queue').textContent = '-';
             document.getElementById('avg-wait-time').textContent = '-';
             document.getElementById('current-date').textContent = azi.split('-').reverse().join('.');
+            document.getElementById('queue-cards-container').innerHTML = '<div style="color:red;">Eroare la încărcarea cozii.</div>';
         }
     } catch {
         document.getElementById('patients-in-queue').textContent = '-';
         document.getElementById('avg-wait-time').textContent = '-';
         document.getElementById('current-date').textContent = azi.split('-').reverse().join('.');
-    }
-    try {
-        const res = await fetch(`/api/coada_pacienti/${medicId}/${azi}`);
-        const queueCards = document.getElementById('queue-cards-container');
-        if (!queueCards) return;
-        if (res.ok) {
-            const queue = await res.json();
-            if (!Array.isArray(queue) || queue.length === 0) {
-                queueCards.innerHTML = '<div style="color:#888;">Nu există pacienți în coadă.</div>';
-                return;
-            }
-            queueCards.innerHTML = queue.map((p, idx) => {
-                const nrOrdine = `<span style='font-weight:bold;color:#00b8b8;font-size:1.1em;margin-right:10px;'>${idx + 1}.</span>`;
-                if (p.status_coada === 'nu_a_ajuns') {
-                    return `<div class="queue-card queue-item programare-neajunsa">${nrOrdine}<span style="color:#1976d2;font-weight:500;">Programare la ora ${p.ora_programare} - pacientul nu a ajuns încă</span> (${p.nume_pacient})</div>`;
-                } else if (p.status_coada === 'in_asteptare') {
-                    return `<div class="queue-card queue-item ${p.status_coada}">
-                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                            <div>
-                                ${nrOrdine}<strong>${p.nume_pacient}</strong>
-                                <span style="color:#888;font-size:0.95em;"> (În așteptare)</span>
-                            </div>
-                            <button onclick="acceptPatient(${p.id_pacient}, '${p.nume_pacient}')" class="accept-btn" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                                <i class="fas fa-check"></i> Acceptă
-                            </button>
-                        </div>
-                    </div>`;
-                } else if (p.status_coada === 'asteptat') {
-                    return `<div class="queue-card queue-item ${p.status_coada}">
-                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                            <div>
-                                ${nrOrdine}<strong>${p.nume_pacient}</strong>
-                                <span style="color:#28a745;font-size:0.95em;"> (Așteaptă în cabinet)</span>
-                            </div>
-                            <span style="color:#28a745;font-weight:bold;"><i class="fas fa-user-check"></i> Acceptat</span>
-                        </div>
-                    </div>`;
-                } else {
-                    return `<div class="queue-card queue-item ${p.status_coada}">${nrOrdine}${p.nume_pacient} <span style="color:#888;font-size:0.95em;">(${p.status_coada})</span></div>`;
-                }
-            }).join('');
-        } else {
-            queueCards.innerHTML = '<div style="color:red;">Eroare la încărcarea cozii.</div>';
-        }
-    } catch (err) {
-        const queueCards = document.getElementById('queue-cards-container');
-        if (queueCards) queueCards.innerHTML = '<div style="color:red;">Eroare la încărcarea cozii.</div>';
+        document.getElementById('queue-cards-container').innerHTML = '<div style="color:red;">Eroare la încărcarea cozii.</div>';
     }
 }
 
@@ -355,6 +337,13 @@ window.acceptPatient = async function(id_pacient, nume_pacient) {
     } catch (error) {
         alert('Eroare la acceptarea pacientului');
     }
+}
+
+// Adaugă ascultător pentru evenimentul socket 'queue-updated' dacă nu există deja
+if (typeof socket !== 'undefined') {
+    socket.on('queue-updated', async (data) => {
+        await loadQueue();
+    });
 }
 
 // --- PROGRAMĂRI AZI ---
@@ -448,7 +437,7 @@ async function loadAcceptedPatients() {
             const patients = await res.json();
             patientSelect.innerHTML = '<option value="">Selectează pacientul</option>';
             patients.forEach(patient => {
-                if (["asteptat", "in_consultatie"].includes(patient.status_coada || patient.status)) {
+                if (["in_asteptare", "asteptat", "in_consultatie"].includes(patient.status_coada || patient.status)) {
                     const option = document.createElement('option');
                     option.value = patient.id_pacient;
                     option.textContent = patient.nume_pacient;

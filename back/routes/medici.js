@@ -164,7 +164,8 @@ router.get('/statistici/:id_medic', async (req, res) => {
     // 3. Programări anulate/neprezentate
     const anulate = (await db.get(`SELECT COUNT(*) as nr FROM programare WHERE id_medic = ? AND (status = 'anulata' OR status = 'neprezentat')`, [id_medic])).nr;
     // 4. Durata medie consultație
-    const durataMedie = (await db.get('SELECT AVG(durata) as durata FROM consultatie WHERE id_medic = ? AND durata IS NOT NULL', [id_medic])).durata || 0;
+    const stat = await db.get('SELECT durata_medie_consultatie FROM statistica WHERE id_medic = ? ORDER BY data DESC LIMIT 1', [id_medic]);
+    const durataMedie = stat && stat.durata_medie_consultatie ? Number(stat.durata_medie_consultatie) : 0;
     // 5. Venit total
     const venitTotal = (await db.get('SELECT SUM(cost) as suma FROM consultatie WHERE id_medic = ?', [id_medic])).suma || 0;
     // 6. Rating mediu actual
@@ -209,19 +210,19 @@ router.get('/statistici/:id_medic', async (req, res) => {
 // GET /medici/:id/coada - returneaza coada sortata pentru un medic
 router.get('/:id/coada', async (req, res) => {
     const id_medic = req.params.id;
+    const azi = new Date().toISOString().split('T')[0];
     try {
-        // Pacientii care au ajuns fizic (ora_sosire nu e null), ordonati dupa ora_sosire
-        // Ceilalti, ordonati dupa data si ora programarii
+        // DOAR pacienții prezenți, ordonați după ora sosirii, care au confirmat sosirea (ora_sosire validă)
         const coada = await getDb().all(`
-            SELECT ca.*, p.nume, p.prenume, pr.ora, pr.data,
-                CASE WHEN ca.ora_sosire IS NOT NULL THEN 1 ELSE 0 END AS a_ajuns_fizic
+            SELECT ca.*, p.nume, p.prenume
             FROM coada_asteptare ca
             JOIN pacient p ON ca.id_pacient = p.id_pacient
-            LEFT JOIN programare pr ON pr.id_pacient = ca.id_pacient AND pr.id_medic = ca.id_medic AND pr.data = ca.data
-            WHERE ca.id_medic = ? AND ca.status = 'in_asteptare'
-            ORDER BY a_ajuns_fizic DESC, 
-                     CASE WHEN ca.ora_sosire IS NOT NULL THEN ca.ora_sosire ELSE pr.ora END ASC
-        `, [id_medic]);
+            WHERE ca.id_medic = ? AND ca.data = ?
+              AND ca.status IN ('in_asteptare', 'asteptat', 'in_consultatie')
+              AND ca.ora_sosire IS NOT NULL AND ca.ora_sosire != '' AND ca.ora_sosire != 'nu_a_ajuns'
+            ORDER BY ca.ora_sosire ASC
+        `, [id_medic, azi]);
+        console.log('[DEBUG COADA MEDIC] Lista pacienți returnată:', coada);
         res.json(coada);
     } catch (err) {
         res.status(500).json({ error: 'Eroare la obtinerea cozii.' });
